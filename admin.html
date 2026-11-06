@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#7a1313">
+  <title>إدارة المتجر | جزارة فرج عبدالمقصود</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Reem+Kufi:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
+  <script src="config.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="admin.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#admin-main">انتقل للمحتوى</a>
+  <header class="admin-header">
+    <a class="admin-brand" href="index.html" aria-label="العودة إلى المتجر">
+      <span class="admin-brand-mark" aria-hidden="true">🥩</span>
+      <span><strong>إدارة المتجر</strong><small>جزارة فرج عبدالمقصود</small></span>
+    </a>
+    <div class="header-actions"><a class="view-store" href="index.html" target="_blank" rel="noopener">عرض المتجر ↗</a><button id="signout-button" class="button button-muted" type="button" hidden>تسجيل الخروج</button></div>
+  </header>
+  <main id="admin-main">
+    <div id="admin-status" class="admin-status" role="status" aria-live="polite" hidden></div>
+    <section id="login-panel" class="login-panel" aria-labelledby="login-title">
+      <div class="login-card">
+        <div class="login-mark" aria-hidden="true">🥩</div>
+        <span class="eyebrow">أهلاً بيك</span>
+        <h1 id="login-title">دخول صاحب المتجر</h1>
+        <p>اكتب البريد الإلكتروني وكلمة المرور المسجلين للمشرف.</p>
+        <form id="login-form">
+          <label class="field-label">البريد الإلكتروني<input name="email" type="email" autocomplete="username" required placeholder="name@example.com"></label>
+          <label class="field-label">كلمة المرور<input name="password" type="password" autocomplete="current-password" required></label>
+          <button class="button button-primary full-button" type="submit">تسجيل الدخول</button>
+        </form>
+        <small>الدخول للمشرفين المعتمدين فقط.</small>
+      </div>
+    </section>
+
+    <section id="dashboard" class="dashboard" hidden>
+      <div class="welcome-row">
+        <div><span class="eyebrow">إدارة بسيطة ومن مكان واحد</span><h1>أهلاً بيك في لوحة التحكم</h1><p>غيّر الأسعار والتوفر والبيانات وقت ما تحتاج.</p></div>
+        <span class="admin-badge">حساب مشرف</span>
+      </div>
+      <nav class="tabs" aria-label="أقسام لوحة التحكم">
+        <button class="tab-button is-active" type="button" data-tab="products-panel">الأصناف</button>
+        <button class="tab-button" type="button" data-tab="categories-panel">الأقسام</button>
+        <button class="tab-button" type="button" data-tab="prices-panel">تعديل الأسعار</button>
+        <button class="tab-button" type="button" data-tab="settings-panel">إعدادات المحل</button>
+      </nav>
+
+      <section id="products-panel" class="panel is-active" aria-labelledby="products-heading">
+        <div class="panel-heading"><div><span class="eyebrow">إضافة وتعديل الأصناف</span><h2 id="products-heading">قائمة الأصناف</h2></div><button id="new-product-button" class="button button-primary" type="button">＋ صنف جديد</button></div>
+        <form id="product-form" class="editor-form" novalidate hidden>
+          <div class="editor-heading"><h3 id="product-form-title">صنف جديد</h3><button class="icon-button" type="button" data-reset-product aria-label="إغلاق نموذج الصنف">×</button></div>
+          <input name="id" type="hidden"><input name="slug" type="hidden">
+          <div class="form-grid">
+            <label class="field-label">اسم الصنف<input name="name" required maxlength="100" placeholder="مثال: مكعبات كندوز"></label>
+            <label class="field-label">القسم<select name="category_id" required></select></label>
+            <label class="field-label">طريقة البيع<select name="sale_type"><option value="weight">بالوزن (كيلو)</option><option value="size">بالأحجام (صغير، وسط، كبير…)</option><option value="piece">بالقطعة</option></select></label>
+            <label class="field-label" data-single-price-field><span data-single-price-label>سعر الكيلو (جنيه)</span><input name="price" type="number" min="0" step="0.01"><small data-price-help>الكمية بتزيد ربع كيلو ربع كيلو.</small></label>
+            <label class="field-label" data-offer-price-field>سعر العرض (اختياري)<input name="discount_price" type="number" min="0" step="0.01" placeholder="اتركه فارغاً بدون خصم"></label>
+            <label class="field-label field-wide">وصف مختصر<textarea name="description" rows="2" maxlength="240" placeholder="تفاصيل بسيطة عن الصنف"></textarea></label>
+            <label class="field-label field-wide">صورة الصنف<input name="image" type="file" accept="image/jpeg,image/png,image/webp"><small>سيتم تصغير الصورة وضغطها تلقائياً قبل الرفع.</small></label>
+          </div>
+          <div id="size-options-editor" class="size-options-editor" hidden>
+            <div class="size-options-heading"><div><h4>أحجام الصنف وأسعارها</h4><p>أضف حجمين على الأقل. رتّب الأحجام بالأسهم، ولكل حجم سعر وتوفّر.</p></div></div>
+            <div class="size-quick-add" aria-label="إضافة حجم شائع"><button type="button" class="small-button" data-quick-size="صغير">＋ صغير</button><button type="button" class="small-button" data-quick-size="وسط">＋ وسط</button><button type="button" class="small-button" data-quick-size="كبير">＋ كبير</button></div>
+            <div id="size-options-list" class="size-options-list"></div>
+            <p id="size-list-error" class="size-list-error" role="alert" hidden></p>
+            <button id="add-size-option" class="button button-muted" type="button">＋ إضافة حجم</button>
+          </div>
+          <div class="check-row"><label><input name="is_available" type="checkbox" checked> متاح للطلب</label><label><input name="is_featured" type="checkbox"> يظهر في الأكثر طلباً</label></div>
+          <div class="form-actions"><button class="button button-primary" type="submit">حفظ الصنف</button><button class="button button-muted" type="button" data-reset-product>إلغاء</button></div>
+        </form>
+        <div class="table-wrap"><table><thead><tr><th>الصنف</th><th>القسم</th><th>السعر</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="products-table"></tbody></table></div>
+      </section>
+
+      <section id="categories-panel" class="panel" aria-labelledby="categories-heading" hidden>
+        <div class="panel-heading"><div><span class="eyebrow">رتّب الأقسام وخليها ظاهرة</span><h2 id="categories-heading">أقسام المتجر</h2></div></div>
+        <form id="category-form" class="inline-editor">
+          <input name="id" type="hidden"><input name="slug" type="hidden">
+          <label class="field-label">اسم القسم<input name="name" maxlength="80" required placeholder="مثال: كندوز وبتلو"></label>
+          <label class="field-label">صورة القسم<input name="image" type="file" accept="image/jpeg,image/png,image/webp"></label>
+          <button class="button button-primary" type="submit">حفظ القسم</button><button id="cancel-category-edit" class="button button-muted" type="button" hidden>إلغاء التعديل</button>
+        </form>
+        <p class="helper-text">اسحب الأقسام لتغيير ترتيب ظهورها للعميل. إخفاء القسم لا يحذف الأصناف.</p>
+        <div id="categories-list" class="categories-list"></div>
+      </section>
+
+      <section id="prices-panel" class="panel" aria-labelledby="prices-heading" hidden>
+        <div class="panel-heading"><div><span class="eyebrow">تغيير سريع لأسعار اليوم</span><h2 id="prices-heading">تعديل الأسعار</h2></div><button id="save-prices-button" class="button button-primary" type="button">حفظ كل الأسعار</button></div>
+        <p class="helper-text">عدّل أسعار الأصناف والأحجام ثم اضغط «حفظ كل الأسعار» مرة واحدة.</p>
+        <div class="table-wrap"><table><thead><tr><th>الصنف</th><th>وحدة البيع</th><th>السعر الحالي (جنيه)</th></tr></thead><tbody id="prices-table"></tbody></table></div>
+      </section>
+
+      <section id="settings-panel" class="panel" aria-labelledby="settings-heading" hidden>
+        <div class="panel-heading"><div><span class="eyebrow">بيانات بتظهر للعميل</span><h2 id="settings-heading">إعدادات المحل</h2></div></div>
+        <form id="settings-form" class="settings-form">
+          <div class="settings-subheading store-images-heading"><div><h3>ارفع صور المحل</h3><p>اختار الصورة من جهازك، راجع المعاينة، ثم اضغط «حفظ إعدادات المحل» أسفل الصفحة.</p></div></div>
+          <div id="store-image-settings" class="store-image-grid">
+            <div class="store-image-row" data-store-image-row data-image-key="logo">
+              <div class="store-image-preview"><img data-image-preview alt="معاينة الشعار" hidden><span data-image-placeholder>🥩</span></div>
+              <label class="store-image-upload"><strong>شعار المحل</strong><span class="store-image-pick">اختيار صورة</span><input data-image-file type="file" accept="image/png,image/jpeg,image/webp"><small>يفضّل PNG أو WebP للحفاظ على الشفافية.</small></label>
+              <button class="small-button danger" type="button" data-clear-store-image>إزالة</button>
+            </div>
+            <div class="store-image-row" data-store-image-row data-image-key="hero">
+              <div class="store-image-preview wide"><img data-image-preview alt="معاينة صورة الغلاف" hidden><span data-image-placeholder>🥩</span></div>
+              <label class="store-image-upload"><strong>صورة الغلاف الرئيسية</strong><span class="store-image-pick">اختيار صورة</span><input data-image-file type="file" accept="image/jpeg,image/png,image/webp"><small>يفضل صورة أفقية عريضة.</small></label>
+              <button class="small-button danger" type="button" data-clear-store-image>إزالة</button>
+            </div>
+            <div class="store-image-row" data-store-image-row data-image-key="inside">
+              <div class="store-image-preview"><img data-image-preview alt="معاينة صورة داخل المحل" hidden><span data-image-placeholder>🥩</span></div>
+              <label class="store-image-upload"><strong>صورة داخل المحل</strong><span class="store-image-pick">اختيار صورة</span><input data-image-file type="file" accept="image/jpeg,image/png,image/webp"></label>
+              <button class="small-button danger" type="button" data-clear-store-image>إزالة</button>
+            </div>
+            <div class="store-image-row" data-store-image-row data-image-key="front">
+              <div class="store-image-preview"><img data-image-preview alt="معاينة واجهة المحل" hidden><span data-image-placeholder>🥩</span></div>
+              <label class="store-image-upload"><strong>واجهة المحل</strong><span class="store-image-pick">اختيار صورة</span><input data-image-file type="file" accept="image/jpeg,image/png,image/webp"></label>
+              <button class="small-button danger" type="button" data-clear-store-image>إزالة</button>
+            </div>
+            <div class="store-image-row" data-store-image-row data-image-key="butcher">
+              <div class="store-image-preview"><img data-image-preview alt="معاينة صورة الجزار" hidden><span data-image-placeholder>🥩</span></div>
+              <label class="store-image-upload"><strong>صورة الجزار (اختياري)</strong><span class="store-image-pick">اختيار صورة</span><input data-image-file type="file" accept="image/jpeg,image/png,image/webp"></label>
+              <button class="small-button danger" type="button" data-clear-store-image>إزالة</button>
+            </div>
+          </div>
+          <div class="form-grid">
+            <label class="field-label">اسم المحل<input name="shop_name" required maxlength="100"></label>
+            <label class="field-label">رقم واتساب (دولي، أرقام فقط)<input name="whatsapp" inputmode="numeric" pattern="[0-9]{10,15}" required placeholder="2010XXXXXXXX"></label>
+            <label class="field-label">رقم الهاتف<input name="phone" type="tel" inputmode="tel"></label>
+            <label class="field-label">مواعيد العمل<input name="working_hours" required maxlength="120"></label>
+            <label class="field-label field-wide">العنوان<input name="address" required maxlength="240"></label>
+            <label class="field-label field-wide">رابط خرائط جوجل<input name="map_url" type="url" placeholder="https://maps.google.com/..."></label>
+            <label class="field-label field-wide">رسالة ترحيب<textarea name="welcome_message" rows="2" maxlength="300"></textarea></label>
+            <label class="field-label">الحد الأدنى للطلب (جنيه)<input name="minimum_order" type="number" min="0" step="0.01" required></label>
+          </div>
+          <div class="settings-subheading"><div><h3>مناطق التوصيل والرسوم</h3><p>تظهر للعميل في اختيار المنطقة.</p></div><button id="add-area-button" class="button button-muted" type="button">＋ منطقة</button></div>
+          <div id="delivery-areas" class="delivery-areas"></div>
+          <label class="pause-setting"><input name="order_paused" type="checkbox"><span><strong>إيقاف استقبال الطلبات</strong><small>يظهر تنبيه للعميل ويتوقف زر الطلب مؤقتاً.</small></span></label>
+          <button class="button button-primary save-settings" type="submit">حفظ إعدادات المحل</button>
+        </form>
+      </section>
+    </section>
+  </main>
+  <div id="admin-toast" class="admin-toast" role="status" aria-live="polite"></div>
+</body>
+</html>
